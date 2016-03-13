@@ -39,6 +39,7 @@
 #include <platform.h>
 
 #define UNLOCK_OPTION_NUM		2
+#define CANDYBOOT_OPTION_NUM		4
 #define BOOT_VERIFY_OPTION_NUM		5
 
 static char *unlock_menu_common_msg = "If you unlock the bootloader, "\
@@ -184,6 +185,48 @@ void display_unlock_menu(struct select_msg_info *unlock_msg_info)
 	unlock_msg_info->option_num = UNLOCK_OPTION_NUM;
 }
 
+
+void display_candyboot_menu(struct select_msg_info *candy_msg_info)
+{
+	fbcon_clear();
+	memset(candy_msg_info, 0, sizeof(struct select_msg_info));
+	display_fbcon_menu_message("candyboot\n", FBCON_UNLOCK_TITLE_MSG, big_factor);
+
+	fbcon_draw_line();
+
+	display_fbcon_menu_message("Use Vol+ and Vol- to pick an option,\n", FBCON_COMMON_MSG, common_factor);
+	display_fbcon_menu_message("and Power to select it.\n", FBCON_COMMON_MSG, common_factor);
+
+	fbcon_draw_line();
+
+	candy_msg_info->option_start[0] = fbcon_get_current_line();
+	display_fbcon_menu_message("Boot normally\n", FBCON_COMMON_MSG, common_factor);
+	candy_msg_info->option_end[0] = fbcon_get_current_line();
+
+	fbcon_draw_line();
+
+	candy_msg_info->option_start[1] = fbcon_get_current_line();
+	display_fbcon_menu_message("Boot to recovery\n", FBCON_COMMON_MSG, common_factor);
+	candy_msg_info->option_end[1] = fbcon_get_current_line();
+
+	fbcon_draw_line();
+
+	candy_msg_info->option_start[2] = fbcon_get_current_line();
+	display_fbcon_menu_message("Extended fastboot\n", FBCON_COMMON_MSG, common_factor);
+	candy_msg_info->option_end[2] = fbcon_get_current_line();
+
+	fbcon_draw_line();
+
+	candy_msg_info->option_start[3] = fbcon_get_current_line();
+	display_fbcon_menu_message("Power off\n", FBCON_COMMON_MSG, common_factor);
+	candy_msg_info->option_end[3] = fbcon_get_current_line();
+
+	fbcon_draw_line();
+
+	candy_msg_info->msg_type = DISPLAY_MENU_UNLOCK;
+	candy_msg_info->option_num = CANDYBOOT_OPTION_NUM;
+}
+
 void display_boot_verified_menu(struct select_msg_info *msg_info, int type)
 {
 	int msg_type = FBCON_COMMON_MSG;
@@ -317,6 +360,10 @@ void display_menu_thread(int type)
 		display_unlock_menu(display_menu_msg_info);
 
 		dprintf(INFO, "creating oem unlock keys detect thread\n");
+		display_menu_thread_start(display_menu_msg_info);
+	} else if (type == DISPLAY_THREAD_CANDY) {
+		display_candyboot_menu(display_menu_msg_info);
+		dprintf(INFO, "creating candyboot keys detect thread\n");
 		display_menu_thread_start(display_menu_msg_info);
 	} else {
 	#if VERIFIED_BOOT

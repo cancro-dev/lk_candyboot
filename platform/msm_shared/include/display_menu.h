@@ -54,11 +54,13 @@ struct select_msg_info {
 
 enum display_thread_type {
 	DISPLAY_THREAD_UNLOCK = 0,
+	DISPLAY_THREAD_CANDY,
 	DISPLAY_THREAD_BOOT_STATE,
 };
 
 void wait_for_users_action(void);
 void display_unlock_menu(struct select_msg_info *msg_info);
+void display_candyboot_menu(struct select_msg_info *msg_info);
 void display_boot_verified_menu(struct select_msg_info *msg_info, int type);
 void display_boot_verified_option(struct select_msg_info *msg_info);
 void display_menu_thread(int type);

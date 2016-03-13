@@ -26,6 +26,8 @@ DEFINES += SPMI_CORE_V2=1
 DEFINES += BAM_V170=1
 DEFINES += ABOOT_IGNORE_BOOT_HEADER_ADDRS=1
 
+ENABLE_FBCON_DISPLAY_MSG := 1
+
 #Enable the feature of long press power on
 DEFINES += LONG_PRESS_POWER_ON=1
 
@@ -48,6 +50,10 @@ endif
 
 ifeq ($(ENABLE_PON_VIB_SUPPORT),true)
 DEFINES += PON_VIB_SUPPORT=1
+endif
+
+ifeq ($(ENABLE_FBCON_DISPLAY_MSG),1)
+DEFINES += FBCON_DISPLAY_MSG=1
 endif
 
 #enable user force reset feature

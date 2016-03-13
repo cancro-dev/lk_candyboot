@@ -1012,19 +1012,19 @@ int boot_linux_from_mmc(void)
 		hdr = uhdr;
 		goto unified_boot;
 	}
-	if (!boot_into_recovery) {
-		index = partition_get_index("boot");
+	if (boot_into_recovery) {
+		index = partition_get_index("oem"); // change this later, to allow more devices to use
 		ptn = partition_get_offset(index);
 		if(ptn == 0) {
-			dprintf(CRITICAL, "ERROR: No boot partition found\n");
+			dprintf(CRITICAL, "ERROR: No recovery partition found\n");
                     return -1;
 		}
 	}
 	else {
-		index = partition_get_index("recovery");
+		index = partition_get_index("boot");
 		ptn = partition_get_offset(index);
 		if(ptn == 0) {
-			dprintf(CRITICAL, "ERROR: No recovery partition found\n");
+			dprintf(CRITICAL, "ERROR: No boot partition found\n");
                     return -1;
 		}
 	}
@@ -3415,6 +3415,14 @@ static void cmd_oem_lastkmsg(const char *arg, void *data, unsigned sz) {
 	fastboot_okay("");
 }
 
+void cmd_oem_jump(const char *arg, void *data, unsigned sz) {
+	unsigned int address = *(unsigned int *) data;
+	dprintf(CRITICAL, "Jumping to address 0x%08X...\n", address);
+	((void (*)(void)) address)();
+	dprintf(CRITICAL, "Done.\n");
+	fastboot_okay("");
+}
+
 
 /* register commands and variables for fastboot */
 void aboot_fastboot_register_commands(void)
@@ -3456,6 +3464,7 @@ void aboot_fastboot_register_commands(void)
 											{"oem dump-partitiontable", cmd_oem_dump_partitiontable},
 											{"oem last_kmsg", cmd_oem_lastkmsg},
 											{"oem memfill", cmd_oem_memfill},
+											{"oem jump", cmd_oem_jump},
 #endif
 										  };
 
@@ -3646,11 +3655,12 @@ normal_boot:
 
 	/* We are here means regular boot did not happen. Start fastboot. */
 
+#if FBCON_DISPLAY_MSG
+	display_menu_thread(DISPLAY_THREAD_CANDY);
+#endif
+
 	/* register aboot specific fastboot commands */
 	aboot_fastboot_register_commands();
-
-	/* dump partition table for debug info */
-	partition_dump();
 
 	/* initialize and start fastboot */
 	fastboot_init(target_get_scratch_address(), target_get_max_flash_size());
