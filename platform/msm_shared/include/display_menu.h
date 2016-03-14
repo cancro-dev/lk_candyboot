@@ -52,6 +52,11 @@ struct select_msg_info {
 	bool		msg_volume_key_pressed;
 };
 
+struct candy_msg_display {
+	uint32_t	message;
+	uint32_t	factor;
+};
+
 enum display_thread_type {
 	DISPLAY_THREAD_UNLOCK = 0,
 	DISPLAY_THREAD_CANDY,
